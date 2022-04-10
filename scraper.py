@@ -2,6 +2,29 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
+def extract_element(ancestor, selector, attribute=None, return_list=False):
+    try:
+        if attribute:
+            return ancestor.select_one(selector)[attribute]
+        elif return_list:
+            return [item.text.strip() for item in ancestor.select(selector)]
+        else:
+            return ancestor.select_one(selector).text.strip()
+    except (AttributeError, TypeError):
+        return None
+
+review_elements = {
+    "author": ["span.user-post__author-name"],
+    "recommendation": ["span.user-post__author-recomendation > em"],
+    "stars": ["span.user-post__score-count"],
+    "content": ["span.user-post__score-count"],
+    "publish_date": ["span.user-post__published > time:nth-child(1)", "datetime"],
+    "purchase_date": ["span.user-post__published > time:nth-child(2)", "datetime"], 
+    "useful": ["button.vote-yes > span"], 
+    "useless": ["button.vote-no > span"],
+    "pros": ["div.review-feature__title--positives ~ div.review-feature__item", None, True],
+    "cons": ["div.review-feature__title--negatives ~ div.review-feature__item", None, True]
+}
 product_id = input("Podaj kod produktu")
 url = f"https://www.ceneo.pl/{product_id}#tab=reviews"
 
@@ -12,41 +35,21 @@ while(url):
     page_dom = BeautifulSoup(response.text, 'html.parser')
     reviews = page_dom.select("div.js_product-review")
     for review in reviews:
-        review_id = review["data-entry-id"]
-        author = review.select_one("span.user-post__author-name").text.strip()
-        try:
-            recommendation = review.select_one("span.user-post__author-recomendation > em").text.strip()
-            recommendation = True if recommendation == "Polecam" else False 
-        except AttributeError: recommendation = None
-        stars = review.select_one("span.user-post__score-count").text.strip()
-        stars = float(stars.split("/").pop(0).replace(",", "."))
-        content = review.select_one("div.user-post__text").text.strip()
-        publish_date = review.select_one("span.user-post__published > time:nth-child(1)")["datetime"]
-        try:
-            purchase_date = review.select_one("span.user-post__published > time:nth-child(2)")["datetime"]
-        except TypeError: purchase_date = None
-        useful = review.select_one("button.vote-yes > span").text.strip()
-        useful = int(useful)
-        useless = review.select_one("button.vote-no > span").text.strip()
-        useless = int(useless)
-        pros = review.select("div.review-feature__title--positives ~ div.review-feature__item")
-        pros = [item.text.strip() for item in pros]
-        cons = review.select("div.review-feature__title--negatives ~ div.review-feature__item")
-        cons = [item.text.strip() for item in cons]
+        single_opinion = {key:extract_element(review, *values)
+                            for key, values in review_elements.items()}
+        single_review["review_id"] = review["data-entry-id"]
 
-        single_review = {
-            "review_id": review_id, 
-            "author": author,
-            "recommendation": recommendation,
-            "stars": stars,
-            "content": content,
-            "publish_date": publish_date,
-            "purchase_date": purchase_date, 
-            "useful": useful, 
-            "useless": useless,
-            "pros": pros,
-            "cons": cons
-        }
+        
+        
+
+
+        recommendation = True if recommendation == "Polecam" else False if single_review[recommendation] == "Nie polecam"
+        single_review["stars"] = float(single_review["stars"].split("/").pop(0).replace(",", "."))
+        single_review["useful"] = int(single_review["useful"])
+        single_review["useless"] = int(single_review["useless"])
+        
+
+
         all_reviews.append(single_review)
 
     try: 
