@@ -23,3 +23,6 @@
 2) Zapisanie wszystkich składowych opinii do słownika
 3) Pobranie wszystkich opinii z pojedynczej strony i zapisanie ich na liście w postaci słowników
 4) Pobranie wszystkich opinii o wskazanym produkcie i zapisanie ich do pliku 
+5) Wczytanie opinii o wskazanym produkcie z pliku do obiektu DataFrame
+6) Wyliczenie podstawowych statystyk
+7) Przedstawienie struktury opinii o produkcie na wykresach

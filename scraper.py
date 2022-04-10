@@ -27,7 +27,7 @@ review_elements = {
 }
 
 
-product_id = input("Podaj kod produktu")
+product_id = input("Podaj kod produktu: ")
 url = f"https://www.ceneo.pl/{product_id}#tab=reviews"
 all_reviews = []
 while(url):
