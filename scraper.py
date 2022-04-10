@@ -2,8 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
-
-url = "https://www.ceneo.pl/95365253#tab=reviews"
+product_id = input("Podaj kod produktu")
+url = f"https://www.ceneo.pl/{product_id}#tab=reviews"
 
 
 all_reviews = []
@@ -54,5 +54,5 @@ while(url):
         url = "https://www.ceneo.pl"+next_page["href"]
     except TypeError: url = None
 
-with open("./reviews/103475515.json", "w", encoding="UTF-8") as f:
+with open(f"./reviews/{product_id}.json", "w", encoding="UTF-8") as f:
     json.dump(all_reviews, f, indent=4, ensure_ascii=False)
